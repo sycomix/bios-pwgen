@@ -29,11 +29,8 @@ def decodeHash(hashCode):
 	return s
 
 def encodePassword(d):
-	n = struct.unpack("<I", d[0:4])[0]
-	p = ""
-	for i in range(8):
-		p += pwdChars[(n >> (21-i*3)) & 0x7]
-	return p
+	n = struct.unpack("<I", d[:4])[0]
+	return "".join(pwdChars[(n >> (21-i*3)) & 0x7] for i in range(8))
 
 # elegant implementation from Jamie, http://numericalrecipes.blogspot.com/2009/03/modular-multiplicative-inverse.html
 #---
@@ -44,12 +41,9 @@ def extEuclideanAlg(a, b) :
 		x, y, gcd = extEuclideanAlg(b, a % b)
 	return y, x - y * (a // b),gcd
 
-def modInvEuclid(a,m) :
+def modInvEuclid(a,m):
 	x,y,gcd = extEuclideanAlg(a,m)
-	if gcd == 1 :
-		return x % m
-	else :
-		return None
+	return x % m if gcd == 1 else None
 #---
 
 def rsaDecrypt(inB):
@@ -69,10 +63,7 @@ def rsaDecrypt(inB):
 
 	m1 = modular_pow(c, dp, p)
 	m2 = modular_pow(c, dq, q)
-	if m1 < m2:
-		h = (qinv * (m1-m2 + p)) % p
-	else:
-		h = (qinv * (m1-m2)) % p
+	h = (qinv * (m1-m2 + p)) % p if m1 < m2 else (qinv * (m1-m2)) % p
 	m = (m2 + h*q)
 	return struct.pack("<Q", m)
 
@@ -100,7 +91,7 @@ print("")
 print("Please enter the code: ")
 code = raw_input().replace("-", "").replace(" ", "").upper()
 password = getMasterPwd(code)
-print("The password is: " + password)
+print(f"The password is: {password}")
 
 if (os.name == 'nt'):
 	print("Press a key to exit...")

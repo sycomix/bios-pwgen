@@ -27,18 +27,14 @@ import os
 XORkey = "<7#&9?>s"
 
 def codeToBytes(code):
-	numbers = (int(code[0:5]), int(code[5:10]), int(code[10:15]), int(code[15:20]))
+	numbers = int(code[:5]), int(code[5:10]), int(code[10:15]), int(code[15:20])
 	bytes = []
 	for i in numbers:
-		bytes.append(i % 256)
-		bytes.append(i / 256)
+		bytes.extend((i % 256, i / 256))
 	return bytes 
 
 def byteToChar(byte):
-	if byte > 9:
-		return chr(ord('a') + byte - 10)
-	else:
-		return chr(ord('0') + byte)
+	return chr(ord('a') + byte - 10) if byte > 9 else chr(ord('0') + byte)
 
 def decryptCode(bytes):
 	# swap two bytes
@@ -65,10 +61,7 @@ def decryptCode(bytes):
 	# len(solution space) = 10+26
 	bytes = [x % 36 for x in bytes]
 
-	masterPwd = ""
-	for x in bytes:
-		masterPwd += byteToChar(x)
-	return masterPwd
+	return "".join(byteToChar(x) for x in bytes)
 
 print("Master Password Generator for FSI laptops (6x4 digits version)")
 print("Copyright (C) 2013 dogbert <dogber1@gmail.com>")
@@ -86,7 +79,7 @@ inHash = raw_input().strip().replace('-', '').replace(' ', '')
 inHash = inHash[4:]
 password = decryptCode(codeToBytes(inHash))
 print("")
-print("The master password is: " + password)
+print(f"The master password is: {password}")
 print("")
 print("Please note that the password is encoded for US QWERTY keyboard layouts.")
 if (os.name == 'nt'):

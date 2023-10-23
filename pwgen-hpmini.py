@@ -31,13 +31,14 @@ def decode(code):
 	if password1 == password2:
 		return password1.lower()
 	else:
-		return password1.lower() + " OR " + password2.lower()
+		return f"{password1.lower()} OR {password2.lower()}"
 
 def decryptHash(hash, key, rotationMatrix):
-	outhash = []
-	for i in range(0, len(hash)):
-		outhash.append(((hash[i] << (rotationMatrix[7*key+i])) & 0xFF) | (hash[i] >> (8-rotationMatrix[7*key+i])))
-	return outhash
+	return [
+		((hash[i] << (rotationMatrix[7 * key + i])) & 0xFF)
+		| (hash[i] >> (8 - rotationMatrix[7 * key + i]))
+		for i in range(0, len(hash))
+	]
 
 print("Master Password Generator for HP/Compaq Mini Netbooks")
 print("Copyright (C) 2009-2010 dogbert <dogber1@gmail.com>")
@@ -52,8 +53,8 @@ password = decode(code)
 if password == "":
 	print("The password could not be calculated. Bummer.")
 else:
-	print("The password is: " + password)
-	
+	print(f"The password is: {password}")
+
 if (os.name == 'nt'):
 	print("Press a key to exit...")
 	raw_input()

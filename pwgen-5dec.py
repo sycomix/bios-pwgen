@@ -31,17 +31,11 @@ keyboardDict = {  2: '1',  3: '2',  4: '3',  5: '4',  6: '5',  7: '6',  8: '7', 
                  44: 'z', 45: 'x', 46: 'c', 47: 'v', 48: 'b', 49: 'n', 50: 'm' }
 
 def keyboardEncToAscii(inKey):
-	out = ""
-	for c in inKey:
-		if c != 0: out += keyboardDict[c]
-	return out
+	return "".join(keyboardDict[c] for c in inKey if c != 0)
 
 def asciiToKeyboardenc(inAscii):
-	out = [] 
 	asciiDict = dict([(a,k) for k,a in keyboardDict.iteritems()])
-	for c in inAscii:
-		if c != 0: out.append(asciiDict[c])
-	return out
+	return [asciiDict[c] for c in inAscii if c != 0]
 
 
 # The phoenix implementation of the CRC-16 contains a rather severe bug
@@ -50,14 +44,11 @@ def asciiToKeyboardenc(inAscii):
 # For a working implementation, you'd have to change the polynom from 0x2001
 # to e.g. 0xA001.
 def badCRC16(pwd, salt=0):
-	hash = salt 
+	hash = salt
 	for c in pwd:
 		hash ^= c
-		for i in range(0,8):
-			if (hash & 1):
-				hash = (hash >> 1) ^ 0x2001
-			else:
-				hash = (hash >> 1)
+		for _ in range(0,8):
+			hash = (hash >> 1) ^ 0x2001 if (hash & 1) else (hash >> 1)
 	return hash
 
 
@@ -65,13 +56,13 @@ def bruteForce(hash, salt=0, digitsOnly=False, charsOnly=True, minLen=3, maxLen=
 	global keyboardDict
 	keyboardDictOrig = keyboardDict
 	if digitsOnly:
-		keyboardDict = dict(zip(list(keyboardDict.keys())[0:9],list(keyboardDict.values())[0:9]))
+		keyboardDict = dict(
+			zip(list(keyboardDict.keys())[:9], list(keyboardDict.values())[:9])
+		)
 	elif charsOnly:
 		keyboardDict = dict(zip(list(keyboardDict.keys())[10:36],list(keyboardDict.values())[10:36]))
 
-	encodedPwd = []
-	for i in range(0, 7):
-		encodedPwd.append(list(keyboardDict.keys())[0])
+	encodedPwd = [list(keyboardDict.keys())[0] for _ in range(0, 7)]
 	random.seed()
 	if hash > 0x3FFF:
 		return "invalid hash code"
@@ -84,10 +75,10 @@ def bruteForce(hash, salt=0, digitsOnly=False, charsOnly=True, minLen=3, maxLen=
 			rndVal = rndVal * len(keyboardDict)
 		# test substrings of the random password
 		for i in range(minLen, maxLen+1):
-			if badCRC16(encodedPwd[0:i], salt) == hash:
+			if badCRC16(encodedPwd[:i], salt) == hash:
 				keyboardDict = keyboardDictOrig
-				encodedPwd = encodedPwd[0:i]
-				return keyboardEncToAscii(encodedPwd[0:i]) 
+				encodedPwd = encodedPwd[:i]
+				return keyboardEncToAscii(encodedPwd[:i]) 
 
 
 
@@ -103,9 +94,11 @@ code = raw_input().replace('[', '').replace(']', '')
 hash = int(code)
 print("")
 print("Brute forcing passwords...")
-print("Generic Phoenix BIOS:          " + bruteForce(hash, 0))
-print("HP/Compaq Phoenix BIOS:        " + bruteForce(hash, salt=17232))
-print("FSI Phoenix BIOS (generic):    " + bruteForce(hash, salt=65, minLen=3, maxLen=7,digitsOnly=True))
+print(f"Generic Phoenix BIOS:          {bruteForce(hash, 0)}")
+print(f"HP/Compaq Phoenix BIOS:        {bruteForce(hash, salt=17232)}")
+print(
+	f"FSI Phoenix BIOS (generic):    {bruteForce(hash, salt=65, minLen=3, maxLen=7, digitsOnly=True)}"
+)
 print("FSI Phoenix BIOS ('L' model):  " + bruteForce(hash+1, salt=ord('L'), minLen=3, maxLen=7,digitsOnly=True))
 print("FSI Phoenix BIOS ('P' model):  " + bruteForce(hash+1, salt=ord('P'), minLen=3, maxLen=7,digitsOnly=True))
 print("FSI Phoenix BIOS ('S' model):  " + bruteForce(hash+1, salt=ord('S'), minLen=3, maxLen=7,digitsOnly=True))
@@ -113,7 +106,7 @@ print("FSI Phoenix BIOS ('X' model):  " + bruteForce(hash+1, salt=ord('X'), minL
 print("")
 print("done.")
 print("")
-print("Please note that the password has been encoded for the standard US") 
+print("Please note that the password has been encoded for the standard US")
 print("keyboard layout (QWERTY).")
 if (os.name == 'nt'):
 	print("Press a key to exit...")

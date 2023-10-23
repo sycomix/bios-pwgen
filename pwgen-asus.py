@@ -43,7 +43,7 @@ def shuffle2(a1, a2, a3):
 		a1 %= a3
 	result = a1
 	if (a2 != 1):
-		for i in range(0, a2-1):
+		for _ in range(0, a2-1):
 			result = a1 * result % a3;
 	return result
 
@@ -73,16 +73,11 @@ def initTable(table, i1=11, i2=19, i3=6):
 def calculatePassword(date, table):
 	date = int(date.replace("-", ""), 16)
 	chksum = date
-	password = ""
-	for i in range(8):
-    		chksum = 33676 * chksum + 12345
-		index = (chksum >> 16) & 31
-		pwdC = ord(table[index]) % 36
-		if pwdC > 9:
-			password += chr(pwdC + ord('7'))
-		else:
-			password += chr(pwdC + ord('0'))
-	return password
+	for _ in range(8):
+		chksum = 33676 * chksum + 12345
+	index = (chksum >> 16) & 31
+	pwdC = ord(table[index]) % 36
+	return "" + (chr(pwdC + ord('7')) if pwdC > 9 else chr(pwdC + ord('0')))
 
 table = initTable(['']*32)
 print("Master Password Generator for Asus laptops (system date version)")
@@ -94,7 +89,7 @@ print("Please enter the system date: ")
 inDate = raw_input().strip().replace('/', '-').replace('.', '-')
 password = calculatePassword(inDate, table)
 print("")
-print("The master password is: " + password)
+print(f"The master password is: {password}")
 print("")
 print("Please note that the password is encoded for US QWERTY keyboard layouts.")
 if (os.name == 'nt'):
