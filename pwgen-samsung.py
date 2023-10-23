@@ -34,12 +34,10 @@ keyboardDict = {  2: '1',  3: '2',  4: '3',  5: '4',  6: '5',  7: '6',  8: '7', 
 
 def keyboardEncToAscii(inKey):
 	out = ""
-	pos = 0
 	for c in inKey:
-		pos += 1
 		if c == 0: return out
-		if c in keyboardDict: out += keyboardDict[c]
-		else: out += "<U-0x%02x/%d>" % (c,c)
+		else:
+			out += keyboardDict[c] if c in keyboardDict else "<U-0x%02x/%d>" % (c,c)
 	return out
 
 def decryptHash(hash, key, rotationMatrix):

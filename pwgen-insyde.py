@@ -50,7 +50,7 @@ print("Please enter the hash: ")
 inHash = raw_input().strip().replace('-', '')
 password = calcPassword(inHash)
 print("")
-print("The master password is: " + password)
+print(f"The master password is: {password}")
 print("")
 print("Please note that the password is encoded for US QWERTY keyboard layouts.")
 if (os.name == 'nt'):

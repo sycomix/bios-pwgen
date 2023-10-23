@@ -39,9 +39,8 @@ print("number.")
 print("")
 print("Please enter the serial number: ")
 code = raw_input()
-password = getMasterPwd(code)
-if password:
-	print("The password is: " + password)
+if password := getMasterPwd(code):
+	print(f"The password is: {password}")
 
 if (os.name == 'nt'):
 	print("Press a key to exit...")

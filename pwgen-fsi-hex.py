@@ -28,11 +28,8 @@ def generateCRC16Table():
 	table = []
 	for i in range(0, 256):
 		crc = (i << 8)
-		for j in range(0, 8):
-			if crc & 0x8000:
-				crc = (crc << 1) ^ 0x1021
-			else:
-				crc = (crc << 1)
+		for _ in range(0, 8):
+			crc = (crc << 1) ^ 0x1021 if crc & 0x8000 else (crc << 1)
 		table.append(crc & 0xFFFF)
 	return table
 
@@ -48,7 +45,9 @@ def hashToString(hash):
 	return (chr(ord('0') + ((hash>>12) % 16) % 10) + chr(ord('0') + ((hash>>8) % 16) % 10) + chr(ord('0') + ((hash>>4) % 16) % 10)  + chr(ord('0') + ((hash>>0) % 16) % 10)) 
  
 def decryptCode(code, table):
-	return hashToString(calculateHash(code[0:4], table)) + hashToString(calculateHash(code[4:8], table))
+	return hashToString(calculateHash(code[:4], table)) + hashToString(
+		calculateHash(code[4:8], table)
+	)
 
 print("Master Password Generator for FSI laptops (hexadecimal digits version)")
 print("Copyright (C) 2009 dogbert <dogber1@gmail.com>")
@@ -63,7 +62,7 @@ if len(input) == 20: input = input[12:20]
 table = generateCRC16Table()
 password = decryptCode(input.upper(), table)
 print("")
-print("The master password is: " + password)
+print(f"The master password is: {password}")
 if (os.name == 'nt'):
 	print("Press a key to exit...")
 	raw_input()
